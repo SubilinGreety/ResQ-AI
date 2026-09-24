@@ -5,6 +5,10 @@ import dotenv from 'dotenv';
 import scenarioRoutes from './routes/scenarioRoutes';
 import riskRoutes from './routes/riskRoutes';
 import alertRoutes from './routes/alertRoutes';
+import populationRoutes from './routes/populationRoutes';
+import massAlertRoutes from './routes/massAlertRoutes';
+import climateRoutes from './routes/climateRoutes';
+import coordinatorRoutes from './routes/coordinatorRoutes';
 import { connectDB, prisma } from './config/db';
 
 dotenv.config();
@@ -27,7 +31,7 @@ app.use(express.json());
 app.get('/api/health', (req: Request, res: Response) => {
   res.json({
     status: 'ONLINE',
-    system: 'ResQ AI - Modules 1, 2 & 3 (Scenario, Risk Prediction & Alerts)',
+    system: 'ResQ AI - Modules 1-6 (Central Brain & Multi-Agent Response Coordinator)',
     city: 'Chennai, Tamil Nadu',
     timestamp: new Date().toISOString(),
   });
@@ -37,6 +41,10 @@ app.get('/api/health', (req: Request, res: Response) => {
 app.use('/api/scenarios', scenarioRoutes);
 app.use('/api/scenarios', riskRoutes);
 app.use('/api/scenarios', alertRoutes);
+app.use('/api/population', populationRoutes);
+app.use('/api/mass-alerts', massAlertRoutes);
+app.use('/api/climate', climateRoutes);
+app.use('/api/coordinator', coordinatorRoutes);
 
 // 404 Handler
 app.use((req: Request, res: Response) => {

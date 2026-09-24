@@ -1,53 +1,53 @@
 // Prisma Schema for ResQ AI - Module 1: Disaster Data Input & Scenario Setup
-// Database: MySQL 8.0
+// Database: SQLite (local zero-configuration database)
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
 model Scenario {
-  id           String    @id @default(cuid())
-  name         String
-  disasterType String    // 'Flood' | 'Cyclone' | 'Tsunami' | 'Earthquake'
-  city         String    @default("Chennai")
-  description  String?   @db.Text
-  severity     String    // 'Low' | 'Moderate' | 'High' | 'Critical'
-  dateTime     DateTime  @default(now())
-  zones        Zone[]
-  resources    Resource?
+  id              String           @id @default(cuid())
+  name            String
+  disasterType    String           // 'Flood' | 'Cyclone' | 'Tsunami' | 'Earthquake'
+  city            String           @default("Chennai")
+  description     String?
+  severity        String           // 'Low' | 'Moderate' | 'High' | 'Critical'
+  dateTime        DateTime         @default(now())
+  zones           Zone[]
+  resources       Resource?
   riskAssessments RiskAssessment[]
-  alerts       Alert[]
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  alerts          Alert[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
 
   @@map("scenarios")
 }
 
 model Zone {
-  id                   String   @id @default(cuid())
+  id                   String           @id @default(cuid())
   scenarioId           String
-  scenario             Scenario @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
+  scenario             Scenario         @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
   name                 String
   locality             String
   population           Int
-  severity             String   // 'Low' | 'Moderate' | 'High' | 'Critical'
+  severity             String           // 'Low' | 'Moderate' | 'High' | 'Critical'
   latitude             Float
   longitude            Float
-  rainfall             Float    @default(0) // Rainfall in mm
-  waterLevel           Float    @default(0) // Water level in meters
-  roadStatus           String   @default("Clear") // 'Clear' | 'Partially Blocked' | 'Waterlogged' | 'Inundated' | 'Impassable'
-  injured              Int      @default(0)
-  vulnerablePopulation Int      @default(0)
-  status               String   @default("Monitoring") // 'Safe' | 'Monitoring' | 'Warning' | 'Critical' | 'Evacuation Required'
+  rainfall             Float            @default(0) // Rainfall in mm
+  waterLevel           Float            @default(0) // Water level in meters
+  roadStatus           String           @default("Clear") // 'Clear' | 'Partially Blocked' | 'Waterlogged' | 'Inundated' | 'Impassable'
+  injured              Int              @default(0)
+  vulnerablePopulation Int              @default(0)
+  status               String           @default("Monitoring") // 'Safe' | 'Monitoring' | 'Warning' | 'Critical' | 'Evacuation Required'
   riskAssessments      RiskAssessment[]
   alerts               Alert[]
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
 
   @@index([scenarioId])
   @@map("zones")
@@ -81,7 +81,7 @@ model RiskAssessment {
   riskLevel         String   // 'LOW' | 'MODERATE' | 'HIGH' | 'CRITICAL'
   priority          Int      // 1, 2, 3, 4
   riskFactors       Json     // array of { factor, value, impact: 'LOW'|'MODERATE'|'HIGH'|'CRITICAL' }
-  recommendedAction String   @db.Text
+  recommendedAction String
   calculatedAt      DateTime @default(now())
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
@@ -102,9 +102,9 @@ model Alert {
   severity         String    // 'CRITICAL' | 'HIGH' | 'MODERATE' | 'LOW'
   priority         Int       // 1, 2, 3, 4
   headline         String
-  messageEn        String    @db.Text
-  messageTa        String    @db.Text
-  instructions     String    @db.Text
+  messageEn        String
+  messageTa        String
+  instructions     String
   channels         Json      // ['SMS', 'WHATSAPP', 'SIREN', 'TACTICAL']
   status           String    @default("DRAFT") // 'DRAFT' | 'DISPATCHED' | 'ACKNOWLEDGED' | 'REVOKED'
   targetPopulation Int       @default(0)
@@ -118,4 +118,3 @@ model Alert {
   @@index([status])
   @@map("alerts")
 }
-

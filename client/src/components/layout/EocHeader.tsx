@@ -9,7 +9,10 @@ import {
   Activity,
   BarChart3,
   Map,
-  Bell,
+  Users,
+  Megaphone,
+  CloudSun,
+  BrainCircuit,
 } from 'lucide-react';
 
 interface EocHeaderProps {
@@ -18,13 +21,11 @@ interface EocHeaderProps {
   onSelectScenario: (scenario: IScenario) => void;
   onOpenCreateModal: () => void;
   onResetDemo: () => void;
-  activeTab: 'overview' | 'risk' | 'alerts';
-  onTabChange: (tab: 'overview' | 'risk' | 'alerts') => void;
+  activeTab: 'overview' | 'risk' | 'population' | 'mass-alerts' | 'climate' | 'coordinator';
+  onTabChange: (tab: 'overview' | 'risk' | 'population' | 'mass-alerts' | 'climate' | 'coordinator') => void;
   onRunRiskAnalysis: () => void;
   isAnalyzingRisk: boolean;
   isLoading: boolean;
-  alertsCount?: number;
-  criticalAlertsCount?: number;
 }
 
 export const EocHeader: React.FC<EocHeaderProps> = ({
@@ -38,8 +39,6 @@ export const EocHeader: React.FC<EocHeaderProps> = ({
   onRunRiskAnalysis,
   isAnalyzingRisk,
   isLoading,
-  alertsCount = 0,
-  criticalAlertsCount = 0,
 }) => {
   const [timeStr, setTimeStr] = useState<string>('');
 
@@ -181,26 +180,54 @@ export const EocHeader: React.FC<EocHeaderProps> = ({
           </button>
 
           <button
-            onClick={() => onTabChange('alerts')}
+            onClick={() => onTabChange('population')}
             className={`py-2.5 border-b-2 flex items-center space-x-1.5 transition-colors ${
-              activeTab === 'alerts'
-                ? 'border-amber-600 text-amber-700 font-bold'
+              activeTab === 'population'
+                ? 'border-violet-600 text-violet-700 font-bold'
                 : 'border-transparent text-slate-500 hover:text-slate-800'
             }`}
           >
-            <Bell className="w-3.5 h-3.5" />
-            <span>Early Warning & Alerts (Module 3)</span>
-            {alertsCount > 0 && (
-              <span
-                className={`ml-1 px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
-                  criticalAlertsCount > 0
-                    ? 'bg-red-100 text-red-700 border border-red-200'
-                    : 'bg-amber-100 text-amber-700 border border-amber-200'
-                }`}
-              >
-                {alertsCount}
-              </span>
-            )}
+            <Users className="w-3.5 h-3.5" />
+            <span>Population Detection (Module 3)</span>
+          </button>
+
+          <button
+            onClick={() => onTabChange('mass-alerts')}
+            className={`py-2.5 border-b-2 flex items-center space-x-1.5 transition-colors ${
+              activeTab === 'mass-alerts'
+                ? 'border-rose-600 text-rose-700 font-bold'
+                : 'border-transparent text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            <Megaphone className="w-3.5 h-3.5" />
+            <span>Emergency Alert Center (Module 4)</span>
+          </button>
+
+          <button
+            onClick={() => onTabChange('climate')}
+            className={`py-2.5 border-b-2 flex items-center space-x-1.5 transition-colors ${
+              activeTab === 'climate'
+                ? 'border-cyan-600 text-cyan-700 font-bold'
+                : 'border-transparent text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            <CloudSun className="w-3.5 h-3.5" />
+            <span>Climate Intelligence (Module 5)</span>
+          </button>
+
+          <button
+            onClick={() => onTabChange('coordinator')}
+            className={`py-2.5 border-b-2 flex items-center space-x-1.5 transition-colors ${
+              activeTab === 'coordinator'
+                ? 'border-indigo-600 text-indigo-700 font-bold'
+                : 'border-transparent text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            <BrainCircuit className="w-3.5 h-3.5" />
+            <span>AI Coordinator (Module 6)</span>
+            <span className="text-[9px] uppercase px-1.5 py-0.5 rounded-full bg-indigo-100 text-indigo-700 font-bold ml-1">
+              Central Brain
+            </span>
           </button>
         </div>
       </div>

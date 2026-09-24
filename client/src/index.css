@@ -42,3 +42,21 @@
   font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
   background-color: #f1f5f9 !important;
 }
+
+/* Ping animation for critical population density markers */
+@keyframes ping {
+  75%, 100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+/* Fade-in for toast notifications */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.25s ease-out both;
+}

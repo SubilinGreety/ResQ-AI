@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { IScenario, IZone, IScenarioFormData } from './types/scenario';
 import { IScenarioRiskAnalysis } from './types/risk';
-import { IAlert, IAlertsData } from './types/alert';
-import { scenarioApi, riskApi, alertApi } from './services/api';
+import { scenarioApi, riskApi } from './services/api';
 import { EocHeader } from './components/layout/EocHeader';
 import { StatusBar } from './components/layout/StatusBar';
 import { CurrentScenarioCard } from './components/dashboard/CurrentScenarioCard';
@@ -10,27 +9,26 @@ import { MetricsOverview } from './components/dashboard/MetricsOverview';
 import { ZoneTable } from './components/dashboard/ZoneTable';
 import { ChennaiMap } from './components/map/ChennaiMap';
 import { RiskAnalysisView } from './components/risk/RiskAnalysisView';
-import { AlertsView } from './components/alerts/AlertsView';
 import { ScenarioBuilderModal } from './components/scenario-builder/ScenarioBuilderModal';
 import { ZoneModal } from './components/scenario-builder/ZoneModal';
-import { AlertCircle, CheckCircle, Info, Activity, Bell } from 'lucide-react';
+import { PopulationDetectionView } from './components/population/PopulationDetectionView';
+import { MassAlertCenter } from './components/mass-alerts/MassAlertCenter';
+import { ClimateIntelligenceView } from './components/climate/ClimateIntelligenceView';
+import { MultiAgentCoordinatorView } from './components/coordinator/MultiAgentCoordinatorView';
+import { AlertCircle, CheckCircle, Info, Activity, Megaphone } from 'lucide-react';
 
 export const App: React.FC = () => {
   const [scenarios, setScenarios] = useState<IScenario[]>([]);
   const [activeScenario, setActiveScenario] = useState<IScenario | null>(null);
   const [selectedZone, setSelectedZone] = useState<IZone | null>(null);
 
-  // Tab State: 'overview' vs 'risk' vs 'alerts'
-  const [activeTab, setActiveTab] = useState<'overview' | 'risk' | 'alerts'>('overview');
+  // Tab State
+  const [activeTab, setActiveTab] = useState<'overview' | 'risk' | 'population' | 'mass-alerts' | 'climate' | 'coordinator'>('overview');
 
   // Risk Assessment State (Module 2)
   const [riskAnalysis, setRiskAnalysis] = useState<IScenarioRiskAnalysis | null>(null);
   const [isAnalyzingRisk, setIsAnalyzingRisk] = useState<boolean>(false);
   const [inspectZoneId, setInspectZoneId] = useState<string | null>(null);
-
-  // Early Warning & Alerts State (Module 3)
-  const [alertsData, setAlertsData] = useState<IAlertsData | null>(null);
-  const [isLoadingAlerts, setIsLoadingAlerts] = useState<boolean>(false);
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
@@ -86,24 +84,10 @@ export const App: React.FC = () => {
     loadScenarios();
   }, []);
 
-  // Fetch alerts for active scenario
-  const fetchAlertsData = async (scenarioId: string) => {
-    try {
-      setIsLoadingAlerts(true);
-      const data = await alertApi.getAlerts(scenarioId);
-      setAlertsData(data);
-    } catch (err: any) {
-      console.warn('Alerts data fetch notice:', err.message);
-    } finally {
-      setIsLoadingAlerts(false);
-    }
-  };
-
-  // When active scenario changes, load its risk analysis and alerts
+  // When active scenario changes, load its risk analysis
   useEffect(() => {
     if (activeScenario?.id) {
       fetchRiskData(activeScenario.id);
-      fetchAlertsData(activeScenario.id);
     }
   }, [activeScenario?.id]);
 
@@ -118,8 +102,6 @@ export const App: React.FC = () => {
         `Risk analysis computed for ${result.zones.length} sectors. Highest risk: ${result.overview.highestRiskZone?.name || 'N/A'}.`,
         'success'
       );
-      // Auto-sync alerts data after risk calculation
-      await fetchAlertsData(activeScenario.id);
     } catch (err: any) {
       showToast(err.message || 'Failed to calculate risk analysis', 'error');
     } finally {
@@ -135,76 +117,7 @@ export const App: React.FC = () => {
 
   // View alerts from map
   const handleViewAlertsFromMap = (_zoneId?: string) => {
-    setActiveTab('alerts');
-  };
-
-  // Generate / regenerate alerts from risk analysis
-  const handleGenerateAlerts = async () => {
-    if (!activeScenario) return;
-    try {
-      setIsLoadingAlerts(true);
-      const data = await alertApi.generateAlerts(activeScenario.id);
-      setAlertsData(data);
-      showToast(
-        `Generated ${data.alerts.length} CAP bilingual alerts synchronized with risk analysis.`,
-        'success'
-      );
-    } catch (err: any) {
-      showToast(err.message || 'Failed to generate alerts', 'error');
-    } finally {
-      setIsLoadingAlerts(false);
-    }
-  };
-
-  // Dispatch single alert
-  const handleDispatchAlert = async (alertId: string, updates?: Partial<IAlert>) => {
-    if (!activeScenario) return;
-    try {
-      const updated = await alertApi.dispatchAlert(activeScenario.id, alertId, updates);
-      showToast(
-        `Warning broadcasted to ${updated.targetPopulation.toLocaleString()} citizens via ${updated.channels.join(', ')}.`,
-        'success'
-      );
-      await fetchAlertsData(activeScenario.id);
-    } catch (err: any) {
-      showToast(err.message || 'Failed to dispatch alert', 'error');
-    }
-  };
-
-  // Dispatch all Priority 1 critical alerts
-  const handleDispatchAllP1 = async () => {
-    if (!activeScenario) return;
-    try {
-      const data = await alertApi.dispatchAllP1(activeScenario.id);
-      setAlertsData(data);
-      showToast('All Priority 1 Critical Evacuation Warnings broadcasted immediately.', 'success');
-    } catch (err: any) {
-      showToast(err.message || 'Failed to broadcast Priority 1 alerts', 'error');
-    }
-  };
-
-  // Update alert content/channels
-  const handleUpdateAlert = async (alertId: string, data: Partial<IAlert>) => {
-    if (!activeScenario) return;
-    try {
-      await alertApi.updateAlert(activeScenario.id, alertId, data);
-      showToast('Alert instructions and channels updated successfully.', 'success');
-      await fetchAlertsData(activeScenario.id);
-    } catch (err: any) {
-      showToast(err.message || 'Failed to update alert', 'error');
-    }
-  };
-
-  // Revoke alert
-  const handleRevokeAlert = async (alertId: string) => {
-    if (!activeScenario) return;
-    try {
-      await alertApi.revokeAlert(activeScenario.id, alertId);
-      showToast('Alert broadcast revoked.', 'info');
-      await fetchAlertsData(activeScenario.id);
-    } catch (err: any) {
-      showToast(err.message || 'Failed to revoke alert', 'error');
-    }
+    setActiveTab('mass-alerts');
   };
 
   const handleCreateScenario = async (formData: IScenarioFormData) => {
@@ -317,8 +230,6 @@ export const App: React.FC = () => {
         onRunRiskAnalysis={handleRunRiskAnalysis}
         isAnalyzingRisk={isAnalyzingRisk}
         isLoading={isLoading}
-        alertsCount={alertsData?.overview.totalAlerts || 0}
-        criticalAlertsCount={alertsData?.overview.criticalP1Count || 0}
       />
 
       {/* Notification Toast */}
@@ -388,35 +299,28 @@ export const App: React.FC = () => {
                   </button>
                 </div>
 
-                {/* Module 3 Early Warning Banner */}
-                {alertsData && (
-                  <div className="mt-3 bg-white border border-slate-200 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-sm">
-                    <div className="flex items-center space-x-3">
-                      <div className="p-2 bg-amber-50 text-amber-700 rounded-lg">
-                        <Bell className="w-5 h-5" />
+                {/* Module 4 Emergency Alert Center Banner */}
+                <div className="mt-3 bg-white border border-slate-200 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-sm">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-rose-50 text-rose-700 rounded-lg">
+                      <Megaphone className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <div className="font-semibold text-slate-800 text-sm">
+                        Module 4: Emergency Alert Center Ready
                       </div>
-                      <div>
-                        <div className="font-semibold text-slate-800 text-sm flex items-center space-x-2">
-                          <span>Module 3: Early Warning & Alerts Ready</span>
-                          {alertsData.overview.criticalP1Count > 0 && (
-                            <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-700 border border-red-200">
-                              {alertsData.overview.criticalP1Count} P1 Critical
-                            </span>
-                          )}
-                        </div>
-                        <div className="text-slate-500 text-xs">
-                          {alertsData.overview.dispatchedCount} dispatched • {alertsData.overview.draftCount} drafts • {alertsData.overview.totalPopulationTargeted.toLocaleString()} citizens targeted (EN + தமிழ்).
-                        </div>
+                      <div className="text-slate-500 text-xs">
+                        Broadcast emergency mass alerts to active mobile SIMs & custom phone numbers.
                       </div>
                     </div>
-                    <button
-                      onClick={() => setActiveTab('alerts')}
-                      className="whitespace-nowrap px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold shadow-sm transition-all"
-                    >
-                      Open Alerts Console &rarr;
-                    </button>
                   </div>
-                )}
+                  <button
+                    onClick={() => setActiveTab('mass-alerts')}
+                    className="whitespace-nowrap px-4 py-2 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold shadow-sm transition-all"
+                  >
+                    Open Alert Center &rarr;
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -428,7 +332,6 @@ export const App: React.FC = () => {
                 onSelectZone={(zone) => setSelectedZone(zone)}
                 riskZones={riskAnalysis?.zones}
                 onInspectRisk={handleInspectRiskFromMap}
-                alerts={alertsData?.alerts}
                 onViewAlerts={handleViewAlertsFromMap}
               />
             </section>
@@ -472,40 +375,45 @@ export const App: React.FC = () => {
                 onSelectZone={(zone) => setSelectedZone(zone)}
                 riskZones={riskAnalysis?.zones}
                 onInspectRisk={handleInspectRiskFromMap}
-                alerts={alertsData?.alerts}
                 onViewAlerts={handleViewAlertsFromMap}
               />
             </section>
           </div>
         )}
 
-        {/* TAB 3: EARLY WARNING & ALERTS (MODULE 3) */}
-        {activeTab === 'alerts' && (
+        {/* TAB 3: POPULATION DENSITY DETECTION (MODULE 3) */}
+        {activeTab === 'population' && (
           <div className="space-y-6">
-            <AlertsView
-              activeScenario={activeScenario}
-              alertsData={alertsData}
-              isLoading={isLoadingAlerts}
-              onRefreshAlerts={() => fetchAlertsData(activeScenario?.id || '')}
-              onGenerateAlerts={handleGenerateAlerts}
-              onDispatchAlert={handleDispatchAlert}
-              onDispatchAllP1={handleDispatchAllP1}
-              onUpdateAlert={handleUpdateAlert}
-              onRevokeAlert={handleRevokeAlert}
-            />
+            <PopulationDetectionView />
+          </div>
+        )}
 
-            {/* Embed the Leaflet map below with warning beacons */}
-            <section className="pt-2">
-              <ChennaiMap
-                zones={activeScenario?.zones || []}
-                selectedZone={selectedZone}
-                onSelectZone={(zone) => setSelectedZone(zone)}
-                riskZones={riskAnalysis?.zones}
-                onInspectRisk={handleInspectRiskFromMap}
-                alerts={alertsData?.alerts}
-                onViewAlerts={handleViewAlertsFromMap}
-              />
-            </section>
+        {/* TAB 4: EMERGENCY MASS ALERT CENTER (MODULE 4) */}
+        {activeTab === 'mass-alerts' && (
+          <div className="space-y-6">
+            <MassAlertCenter />
+          </div>
+        )}
+
+        {/* TAB 5: CLIMATE INTELLIGENCE & EARLY WARNING SYSTEM (MODULE 5) */}
+        {activeTab === 'climate' && (
+          <div className="space-y-6">
+            <ClimateIntelligenceView
+              onNavigateToAlertCenter={(_hazard, _location) => {
+                setActiveTab('mass-alerts');
+              }}
+            />
+          </div>
+        )}
+
+        {/* TAB 6: MULTI-AGENT DISASTER RESPONSE COORDINATOR (MODULE 6 / CENTRAL BRAIN) */}
+        {activeTab === 'coordinator' && (
+          <div className="space-y-6">
+            <MultiAgentCoordinatorView
+              onNavigateToMassAlerts={() => setActiveTab('mass-alerts')}
+              onNavigateToPopulation={() => setActiveTab('population')}
+              onNavigateToClimate={() => setActiveTab('climate')}
+            />
           </div>
         )}
       </main>

@@ -5,6 +5,8 @@
   "description": "AI-Powered Multi-Hazard Disaster Intelligence & Response System for Chennai - Module 1",
   "scripts": {
     "dev": "concurrently -n \"SERVER,CLIENT\" -c \"blue.bold,cyan.bold\" \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:all": "concurrently -n \"SERVER,CLIENT,FASTAPI\" -c \"blue.bold,cyan.bold,magenta.bold\" \"npm run dev:server\" \"npm run dev:client\" \"npm run dev:fastapi\"",
+    "dev:fastapi": "cd fastapi-server && python -m uvicorn main:app --host 0.0.0.0 --port 8008 --reload",
     "dev:server": "cd server && npm run dev",
     "dev:client": "cd client && npm run dev",
     "build": "cd server && npm run build && cd ../client && npm run build"
