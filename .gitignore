@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+*/node_modules/
+client/node_modules/
+server/node_modules/
+
+# Production Builds
+dist/
+build/
+client/dist/
+server/dist/
+
+# Environment & Credentials
+.env
+*.env
+server/.env
+.env.local
+.env.*.local
+
+# Database files & generated DLLs (if any)
+*.sqlite
+*.sqlite3
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor & OS directories
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Cache
+.cache/
+.tsbuildinfo
+.eslintcache

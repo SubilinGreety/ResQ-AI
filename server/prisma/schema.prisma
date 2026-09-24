@@ -1,0 +1,121 @@
+// Prisma Schema for ResQ AI - Module 1: Disaster Data Input & Scenario Setup
+// Database: MySQL 8.0
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Scenario {
+  id           String    @id @default(cuid())
+  name         String
+  disasterType String    // 'Flood' | 'Cyclone' | 'Tsunami' | 'Earthquake'
+  city         String    @default("Chennai")
+  description  String?   @db.Text
+  severity     String    // 'Low' | 'Moderate' | 'High' | 'Critical'
+  dateTime     DateTime  @default(now())
+  zones        Zone[]
+  resources    Resource?
+  riskAssessments RiskAssessment[]
+  alerts       Alert[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@map("scenarios")
+}
+
+model Zone {
+  id                   String   @id @default(cuid())
+  scenarioId           String
+  scenario             Scenario @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
+  name                 String
+  locality             String
+  population           Int
+  severity             String   // 'Low' | 'Moderate' | 'High' | 'Critical'
+  latitude             Float
+  longitude            Float
+  rainfall             Float    @default(0) // Rainfall in mm
+  waterLevel           Float    @default(0) // Water level in meters
+  roadStatus           String   @default("Clear") // 'Clear' | 'Partially Blocked' | 'Waterlogged' | 'Inundated' | 'Impassable'
+  injured              Int      @default(0)
+  vulnerablePopulation Int      @default(0)
+  status               String   @default("Monitoring") // 'Safe' | 'Monitoring' | 'Warning' | 'Critical' | 'Evacuation Required'
+  riskAssessments      RiskAssessment[]
+  alerts               Alert[]
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  @@index([scenarioId])
+  @@map("zones")
+}
+
+model Resource {
+  id              String   @id @default(cuid())
+  scenarioId      String   @unique
+  scenario        Scenario @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
+  rescueVehicles  Int      @default(0)
+  ambulances      Int      @default(0)
+  doctors         Int      @default(0)
+  medicalTeams    Int      @default(0)
+  shelters        Int      @default(0)
+  foodKits        Int      @default(0)
+  waterSupplies   Int      @default(0)
+  rescuePersonnel Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("resources")
+}
+
+model RiskAssessment {
+  id                String   @id @default(cuid())
+  scenarioId        String
+  scenario          Scenario @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
+  zoneId            String
+  zone              Zone     @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+  riskScore         Int      // 0 to 100
+  riskLevel         String   // 'LOW' | 'MODERATE' | 'HIGH' | 'CRITICAL'
+  priority          Int      // 1, 2, 3, 4
+  riskFactors       Json     // array of { factor, value, impact: 'LOW'|'MODERATE'|'HIGH'|'CRITICAL' }
+  recommendedAction String   @db.Text
+  calculatedAt      DateTime @default(now())
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@unique([scenarioId, zoneId])
+  @@index([scenarioId])
+  @@index([zoneId])
+  @@map("risk_assessments")
+}
+
+model Alert {
+  id               String    @id @default(cuid())
+  scenarioId       String
+  scenario         Scenario  @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
+  zoneId           String?
+  zone             Zone?     @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+  alertType        String    // 'EVACUATION' | 'FLASH_FLOOD' | 'WATERLOGGING' | 'ADVISORY'
+  severity         String    // 'CRITICAL' | 'HIGH' | 'MODERATE' | 'LOW'
+  priority         Int       // 1, 2, 3, 4
+  headline         String
+  messageEn        String    @db.Text
+  messageTa        String    @db.Text
+  instructions     String    @db.Text
+  channels         Json      // ['SMS', 'WHATSAPP', 'SIREN', 'TACTICAL']
+  status           String    @default("DRAFT") // 'DRAFT' | 'DISPATCHED' | 'ACKNOWLEDGED' | 'REVOKED'
+  targetPopulation Int       @default(0)
+  deliveryRate     Float     @default(0.0)
+  dispatchedAt     DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@index([scenarioId])
+  @@index([zoneId])
+  @@index([status])
+  @@map("alerts")
+}
+

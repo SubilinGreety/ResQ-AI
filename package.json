@@ -1,0 +1,15 @@
+{
+  "name": "resq-ai",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AI-Powered Multi-Hazard Disaster Intelligence & Response System for Chennai - Module 1",
+  "scripts": {
+    "dev": "concurrently -n \"SERVER,CLIENT\" -c \"blue.bold,cyan.bold\" \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:server": "cd server && npm run dev",
+    "dev:client": "cd client && npm run dev",
+    "build": "cd server && npm run build && cd ../client && npm run build"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
