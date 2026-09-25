@@ -315,5 +315,14 @@ export const coordinatorApi = {
     const res = await api.get('/coordinator/workflow');
     return res.data.data;
   },
+
+  injectZoneAndReplan: async (payload: {
+    zone_name: string;
+    population: number;
+    risk_level: string;
+  }): Promise<ICoordinatorDashboardResponse> => {
+    const res = await api.post('/coordinator/replan-zone', payload);
+    return res.data.data;
+  },
 };
 

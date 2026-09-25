@@ -17,26 +17,26 @@ export const ExplainableAiPanel: React.FC<ExplainableAiPanelProps> = ({
   return (
     <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
       {/* Header */}
-      <div className="p-4 bg-gradient-to-r from-slate-900 to-indigo-950 text-white flex items-center justify-between">
+      <div className="p-4 bg-gradient-to-r from-indigo-50/80 via-white to-blue-50/80 border-b border-slate-200 text-slate-900 flex items-center justify-between">
         <div className="flex items-center space-x-2.5">
-          <div className="p-2 rounded-xl bg-indigo-500/20 text-indigo-400 border border-indigo-400/30">
+          <div className="p-2 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-600">
             <BrainCircuit className="w-4 h-4" />
           </div>
           <div>
-            <h3 className="text-sm font-bold tracking-tight flex items-center gap-1.5">
+            <h3 className="text-sm font-bold tracking-tight text-slate-900 flex items-center gap-1.5">
               Explainable AI (XAI) Decision Rationale
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold uppercase">
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold uppercase">
                 Audited
               </span>
             </h3>
-            <p className="text-xs text-indigo-200/80">
+            <p className="text-xs text-slate-500">
               Deterministic causal logic behind multi-agent autonomous activation
             </p>
           </div>
         </div>
 
         <div className="flex items-center space-x-2">
-          <span className="text-xs font-mono px-2.5 py-1 rounded-lg bg-white/10 text-white font-semibold">
+          <span className="text-xs font-mono px-2.5 py-1 rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-800 font-semibold">
             Priority: {priority.score} / 100
           </span>
         </div>

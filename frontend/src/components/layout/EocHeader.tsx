@@ -164,7 +164,19 @@ export const EocHeader: React.FC<EocHeaderProps> = ({
             }`}
           >
             <Map className="w-3.5 h-3.5" />
-            <span>Overview & Tactical Map</span>
+            <span>Overview &amp; Tactical Map</span>
+          </button>
+
+          <button
+            onClick={() => onTabChange('climate')}
+            className={`py-2.5 border-b-2 flex items-center space-x-1.5 transition-colors ${
+              activeTab === 'climate'
+                ? 'border-cyan-600 text-cyan-700 font-bold'
+                : 'border-transparent text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            <CloudSun className="w-3.5 h-3.5" />
+            <span>Climate Intelligence (Module 5)</span>
           </button>
 
           <button
@@ -176,7 +188,7 @@ export const EocHeader: React.FC<EocHeaderProps> = ({
             }`}
           >
             <BarChart3 className="w-3.5 h-3.5" />
-            <span>Risk Prediction & Analysis (Module 2)</span>
+            <span>Risk Prediction &amp; Analysis (Module 2)</span>
           </button>
 
           <button
@@ -201,18 +213,6 @@ export const EocHeader: React.FC<EocHeaderProps> = ({
           >
             <Megaphone className="w-3.5 h-3.5" />
             <span>Emergency Alert Center (Module 4)</span>
-          </button>
-
-          <button
-            onClick={() => onTabChange('climate')}
-            className={`py-2.5 border-b-2 flex items-center space-x-1.5 transition-colors ${
-              activeTab === 'climate'
-                ? 'border-cyan-600 text-cyan-700 font-bold'
-                : 'border-transparent text-slate-500 hover:text-slate-800'
-            }`}
-          >
-            <CloudSun className="w-3.5 h-3.5" />
-            <span>Climate Intelligence (Module 5)</span>
           </button>
 
           <button

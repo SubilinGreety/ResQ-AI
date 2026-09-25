@@ -410,6 +410,8 @@ export const App: React.FC = () => {
         {activeTab === 'coordinator' && (
           <div className="space-y-6">
             <MultiAgentCoordinatorView
+              activeScenario={activeScenario}
+              riskAnalysis={riskAnalysis}
               onNavigateToMassAlerts={() => setActiveTab('mass-alerts')}
               onNavigateToPopulation={() => setActiveTab('population')}
               onNavigateToClimate={() => setActiveTab('climate')}

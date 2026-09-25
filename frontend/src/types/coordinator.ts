@@ -125,6 +125,43 @@ export interface IWorkflowStage {
   timestamp: string;
 }
 
+export interface IResourceAllocationRow {
+  id: string;
+  zone_name: string;
+  risk_level: string;
+  population: number;
+  ambulances_requested: number;
+  ambulances_allocated: number;
+  boats_requested: number;
+  boats_allocated: number;
+  medics_requested: number;
+  medics_allocated: number;
+  food_packs_allocated: number;
+  tradeoff_rationale: string;
+}
+
+export interface IAgentConflictResolution {
+  id: string;
+  agents_involved: string[];
+  contested_resource: string;
+  conflict_description: string;
+  resolution_strategy: string;
+  tradeoff_penalty: string;
+  status: string;
+}
+
+export interface IPublicAlertDraft {
+  headline_en: string;
+  headline_ta: string;
+  body_en: string;
+  body_ta: string;
+  evacuation_routes: string[];
+  safe_shelters: string[];
+  helpline: string;
+  urgency: string;
+  approved_by_commander: boolean;
+}
+
 export interface ICoordinatorDashboardResponse {
   situation: ISituationInput;
   priority: IPriorityCalculation;
@@ -137,5 +174,9 @@ export interface ICoordinatorDashboardResponse {
   workflow_stages: IWorkflowStage[];
   timeline: IMissionTimelineEvent[];
   resources: IResourceUtilization;
+  allocation_table?: IResourceAllocationRow[];
+  conflict_resolutions?: IAgentConflictResolution[];
+  public_alert_draft?: IPublicAlertDraft;
+  bonus_replan_log?: string[];
   last_evaluated_at: string;
 }
